@@ -1,4 +1,6 @@
-package twoPointer;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Scanner;
 
 /**
  * 1253. 좋은 수 구하기
@@ -17,8 +19,21 @@ package twoPointer;
  * 3.2.6 if sum == A[i], cnt++; break;
  * 4. 최종 cnt 출력
  */
-public class Baekjoon_1253 {
-    public Integer goodNumber (int N, int[] A) {
+class Main {
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        int N = sc.nextInt();
+        int[] A = new int[N];
+
+        for (int i = 0; i < N; i++) {
+            A[i] = sc.nextInt();
+        }
+        Arrays.sort(A);
+
+        System.out.println(goodNumber(N, A));
+    }
+
+    public static Integer goodNumber (int N, int[] A) {
         // 2. 변수 초기화 - 좋은 수의 개수를 저장할 변수 cnt = 0, sum = 0, start_i = 0, end_i = N-1
         int cnt = 0;
         int sum = 0;
