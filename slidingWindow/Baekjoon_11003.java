@@ -1,5 +1,4 @@
-package slidingWindow;
-
+import java.io.IOException;
 import java.io.*;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -19,17 +18,15 @@ import java.util.StringTokenizer;
 2. 노드 클래스에는 index(자신의 위치), value(자신의 값) 담기
 **/
 
-public class Baekjoon_11003 {
-
-    public static void minimumNumberPrint() throws IOException {
+class Main {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         // 출력을 버퍼에 넣고 한 번에 출력하기 위해 BufferedWriter 사용
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
         StringTokenizer st = new StringTokenizer(br.readLine());
+
         int N = Integer.parseInt(st.nextToken());
         int L = Integer.parseInt(st.nextToken());
-
         st = new StringTokenizer(br.readLine());
         Deque<Node> mydeque = new LinkedList<>();
 
@@ -51,7 +48,7 @@ public class Baekjoon_11003 {
         bw.flush();
         bw.close();
     }
-
+    
     public static class Node {
         public int index;
         public int value;
