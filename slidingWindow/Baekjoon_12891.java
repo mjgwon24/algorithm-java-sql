@@ -1,4 +1,5 @@
-package slidingWindow;
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * 12891. DNA 비밀번호 구하기
@@ -13,7 +14,23 @@ package slidingWindow;
  * 5.3 if ( C[0] == 0 && C[1] == 0 && C[2] == 0 && C[3] == 0 ), cnt++;
  * 6. 계산된 cnt 출력
  */
-public class Baekjoon_12891 {
+class Main {
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        int S = sc.nextInt();
+        int P = sc.nextInt();
+        sc.nextLine();
+
+        String inputStr = sc.nextLine();
+        int[] C = new int[4];
+
+        for (int i = 0; i < 4; i++) {
+            C[i] = sc.nextInt();
+        }
+
+        System.out.println(dnaPw(S, P, inputStr, C));
+    }
+    
     public static int dnaPw(int S, int P, String A, int[] C) {
         // 변수 초기화
         int cntA = 0;
@@ -52,10 +69,11 @@ public class Baekjoon_12891 {
                 if (end_c == 'G') cntG++;
                 if (end_c == 'T') cntT++;
             }
-
-            if (cntA >= C[0] && cntC >= C[1] && cntG >= C[2] && cntT >= C[3]) {
-                cnt++;
-            }
+            
+            
+                    if (cntA >= C[0] && cntC >= C[1] && cntG >= C[2] && cntT >= C[3]) {
+                        cnt++;
+                    }
         }
         return cnt;
     }
