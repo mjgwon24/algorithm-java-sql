@@ -58,12 +58,12 @@
 
 ## 🛠️ 실행 방법
 
-1. 저장소를 클론합니다:
+1. 저장소 클론
    ```bash
    git clone https://github.com/mjgwon24/algorithm-java.git
    ```
-2. 원하는 알고리즘 폴더로 이동합니다.
-3. Java 컴파일러 또는 IDE(IntelliJ, Eclipse 등)를 사용해 실행합니다.
+2. 원하는 알고리즘 폴더로 이동
+3. Java 컴파일러 또는 IDE(IntelliJ, Eclipse 등)를 사용해 실행
 
 ---
 
