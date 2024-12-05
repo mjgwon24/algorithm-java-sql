@@ -14,57 +14,58 @@ public class Main {
         }
 
         for (int i = 1; i <= N; i++) {
-            int inputNode = sc.nextInt();
+            int node = sc.nextInt();
 
             while (true) {
                 int to = sc.nextInt();
                 if (to == -1) break;
 
                 int weight = sc.nextInt();
-                graph[inputNode].add(new int[] {to, weight});
+                graph[node].add(new int[] {to, weight});
             }
         }
 
         int[] firstBfs = bfs(1);
-        int farthestNode = firstBfs[0];
+        int farthestEdge = firstBfs[0];
 
-        int[] secondBfs = bfs(farthestNode);
+        int[] secondBfs = bfs(farthestEdge);
         int farthestDistance = secondBfs[1];
 
         System.out.println(farthestDistance);
     }
 
     static int[] bfs(int start) {
-        Queue<Integer> queue = new LinkedList<Integer>();
+        Queue<Integer> queue = new LinkedList<>();
         boolean[] visited = new boolean[N + 1];
         int[] distance = new int[N + 1];
+        int farthestEdge = 1;
+        int farthestDistance = 0;
 
         queue.add(start);
         visited[start] = true;
 
-        int farthestNode = start;
-        int maxDistance = 0;
-
         while (!queue.isEmpty()) {
-            int now = queue.poll();
+            int nowNode = queue.poll();
 
-            for (int[] next : graph[now]) {
-                int e = next[0];
-                int v = next[1];
+            for (int[] next : graph[nowNode]) {
+                int nextEdge = next[0];
+                int nextWeight = next[1];
 
-                if (!visited[e]) {
-                    visited[e] = true;
-                    queue.add(e);
-                    distance[e] = distance[now] + v;
+                if (!visited[nextEdge]) {
+                    visited[nextEdge] = true;
+                    queue.add(nextEdge);
+                    distance[nextEdge] = distance[nowNode] + nextWeight;
 
-                    if (distance[e] > maxDistance) {
-                        maxDistance = distance[e];
-                        farthestNode = e;
+                    if (distance[nextEdge] > farthestDistance) {
+                        farthestEdge = nextEdge;
+                        farthestDistance = distance[nextEdge];
                     }
                 }
             }
         }
 
-        return new int[] {farthestNode, maxDistance};
+        return new int[] {farthestEdge, farthestDistance};
     }
-} 
+}
+
+// 1 -(2)- 3 -(3)- 4 -(6)- 5
