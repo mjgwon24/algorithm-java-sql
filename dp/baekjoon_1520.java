@@ -10,7 +10,6 @@ class Main {
         {-1, 0}, {1, 0},
         {0, 1}, {0, -1}
     };
-    static int result;
     
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
