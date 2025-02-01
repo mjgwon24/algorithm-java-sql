@@ -37,7 +37,7 @@ public class Main {
         
         // 도시 기준으로 각 면접장까지의 최단거리 구하기
         dist = new long[N + 1];
-        Arrays.fill(dist, Long.MAX_VALUE);
+        Arrays.fill(dist, Long.MAX_VALUE); 
         
         // 면접장 위치 입력
         st = new StringTokenizer(br.readLine());
