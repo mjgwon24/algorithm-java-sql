@@ -40,21 +40,27 @@ public class Main {
             return;
         }
         
-        // 1. 벌통이 왼쪽 끝에 있는 경우 (벌 하나는 오른쪽 끝에 고정)
+        // 1. 벌통이 오른쪽 끝에 있는 경우 (벌 하나는 왼쪽 끝에 고정)
         for (int i = 1; i < N - 1; i++) {
-            int honey = (prefixSum[N - 1] - arr[0]) + (prefixSum[N - 1] - prefixSum[i]) - arr[i];
+            int honey = (prefixSum[N - 1] - arr[0]) // 왼쪽 끝 벌이 모은 꿀
+                + (prefixSum[N - 1] - prefixSum[i]) // 나머지 벌이 모은 꿀
+                - arr[i];                           // 두 벌이 겹치는 위치의 꿀 중복 제거
             maxHoney = Math.max(maxHoney, honey);
         }
         
-        // 2. 벌통이 오른쪽 끝에 있는 경우 (벌 하나는 왼쪽 끝에 고정)
+        // 2. 벌통이 왼쪽 끝에 있는 경우 (벌 하나는 오른쪽 끝에 고정)
         for (int i = 1; i < N - 1; i++) {
-            int honey = (prefixSum[N - 1] - arr[N - 1]) + prefixSum[i - 1] - arr[i];
+            int honey = (prefixSum[N - 1] - arr[N - 1]) // 오른쪽 끝 벌이 모은 꿀
+                + prefixSum[i - 1]                      // 나머지 벌이 모은 꿀
+                - arr[i];                               // 두 벌이 겹치는 위치의 꿀 중복 제거
             maxHoney = Math.max(maxHoney, honey);
         }
         
-        // 3. 벌통이 중간에 있는 경우 (벌들을 양 끝에 고정)
+        // 3. 벌통이 중간(i)에 있는 경우 (벌들을 양 끝에 고정)
         for (int i = 1; i < N - 1; i++) {
-            int honey = prefixSum[i - 1] + prefixSum[N - 2] - prefixSum[i] + arr[i];
+            int honey = prefixSum[i - 1] - arr[0]   // 왼쪽 끝 벌이 모은 꿀 (1 ~ i - 1)
+                + prefixSum[N - 2] - prefixSum[i]   // 오른쪽 끝 벌이 모은 꿀 (i + 1 ~ N - 1)
+                + arr[i] * 2;                       // 벌통 위치의 꿀 * 2
             maxHoney = Math.max(maxHoney, honey);
         }
        
@@ -67,4 +73,7 @@ public class Main {
 // 가능한 최대 꿀의 양 도출
 // 2개 위치 선택 - 벌 위치(동일할 수 없음), 1개 위치 선택 - 벌통 위치
 // 벌은 벌통으로 이동. 시작 위치의 꿀은 채취 불가
+
+// 누적합
+// 구간 [l, r] 합 = prefixSum[r] - prefixSum[l - 1] (l == 0, prefixSum[r])
 
