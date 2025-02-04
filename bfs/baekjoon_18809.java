@@ -35,127 +35,82 @@ public class Main {
         selected = new boolean[canStartPositions.size()];
         
         // 1. make combination - start energy position 
-        comb(0, 0, 0);
+        selectPositions(0, 0, new ArrayList<>());
         System.out.println(result);
     }
     
-    // 1. make combination - start energy position / pruning(start)
-    // time = C(10, 5) * C(5, 5) / 2 = 252 / 2
-    static void comb(int gDepth, int rDepth, int start) {
-        if (gDepth == G && rDepth == R) {
-            // 2. run spread energy -> make flowers
-            spreadEnergy();
-            return;
-        }
-        
-        // each care green depth, red depth
-        // make on the map - green, red area
-        for (int i = start; i < canStartPositions.size(); i++) {
-            int[] current = canStartPositions.get(i);
-            int x = current[0];
-            int y = current[1];
-            
-            if (!selected[i]) {
-                selected[i] = true;
-                
-                // green 3
-                map[x][y] = 3;
-                comb(gDepth + 1, rDepth, i + 1);
-                
-                // red 4
-                map[x][y] = 4;
-                comb(gDepth, rDepth + 1, i + 1);
-                
-                // backtracking
-                selected[i] = false;
-                map[x][y] = 2;
-            }
-        }
-        
+
+    // 1. G + R 개의 배양 위치 선택
+static void selectPositions(int depth, int start, List<Integer> selectedPos) {
+    if (depth == G + R) {
+        assignColors(0, 0, selectedPos, new boolean[selectedPos.size()]);
+        return;
     }
+    for (int i = start; i < canStartPositions.size(); i++) {
+        selectedPos.add(i);
+        selectPositions(depth + 1, i + 1, selectedPos);
+        selectedPos.remove(selectedPos.size() - 1);
+    }
+}
+
+// 2. 선택된 위치에 초록/빨강 배양액 배치
+static void assignColors(int gCount, int index, List<Integer> selectedPos, boolean[] isGreen) {
+    if (gCount == G) {
+        spreadEnergy(selectedPos, isGreen);
+        return;
+    }
+    if (index >= selectedPos.size()) return;
+
+    isGreen[index] = true;
+    assignColors(gCount + 1, index + 1, selectedPos, isGreen);
+
+    isGreen[index] = false;
+    assignColors(gCount, index + 1, selectedPos, isGreen);
+}
+
     
     // 2. run spread energy -> make flowers
-    static void spreadEnergy() {
-        int[][][] copy = new int[N][M][2];
-        for (int i  = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                copy[i][j][0] = map[i][j];
-                copy[i][j][1] = 0;
-            }
-        }
-        
-        int flowerCnt = 0;
-        Queue<int[]> q = new LinkedList<>();
-        
-        // queue initialize
-        for (int i = 0; i < canStartPositions.size(); i++) {
-            if (selected[i]) {
-                int[] current = canStartPositions.get(i);
-                int x = current[0];
-                int y = current[1];
-                
-                q.offer(new int[]{x, y, copy[x][y][0], 0}); // x, y, type, time
-            }
-        }
-        
-        // spread
-        // 0 can't spread, 1 can spread, 2 can spread, 3 green energy, 4 red energy, -1 flower
-        while (!q.isEmpty()) {
-            int[] current = q.poll();
-            int x = current[0];
-            int y = current[1];
-            int type = current[2];
-            int time = current[3];
-            
-            if (copy[x][y][0] == -1) continue;
-            
-            for (int[] mv : move) {
-                int nx = x + mv[0];
-                int ny = y + mv[1];
-                
-                if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
-                if (copy[nx][ny][0] == 0 || copy[nx][ny][0] == -1 || copy[nx][ny][0] == type) continue;
-                
-                if (copy[nx][ny][0] == 1 || copy[nx][ny][0] == 2) {
-                    copy[nx][ny][0] = type;
-                    copy[nx][ny][1] = time + 1;
-                    q.offer(new int[]{nx, ny, type, time + 1});
-                    continue;
-                } else {
-                    // meet different type
-                    // flower? or none
-                    if (time + 1 == copy[nx][ny][1]) {
-                        copy[nx][ny][0] = -1;
-                        flowerCnt++;
-                    }
-                }
-            }
-            
-        }
-        
-        // if (flowerCnt == 6) {
-        //     System.out.println("=== before ===");
-        // for (int[] m : map) {
-        //     for (int n : m) {
-        //         System.out.print(n + " ");
-        //     }
-        //     System.out.println();
-        // }
-        // System.out.println();
-        
-        // System.out.println("=== spread ===");
-        // for (int[][] m : copy) {
-        //     for (int[] n : m) {
-        //         System.out.print(n[0] + " ");
-        //     }
-        //     System.out.println();
-        // }
-        // System.out.println("flowerCnt: " + flowerCnt);
-        // System.out.println();
-        // }
-      
-        result = Math.max(result, flowerCnt);
+    static void spreadEnergy(List<Integer> positions, boolean[] isGreen) {
+    int[][] time = new int[N][M];
+    int[][] color = new int[N][M];
+    Queue<int[]> q = new LinkedList<>();
+    int flowerCount = 0;
+
+    // 초기 배양액 배치
+    for (int i = 0; i < positions.size(); i++) {
+        int[] pos = canStartPositions.get(positions.get(i));
+        int x = pos[0], y = pos[1];
+        color[x][y] = isGreen[i] ? 3 : 4; // 초록 3, 빨강 4
+        q.offer(new int[]{x, y, color[x][y], 0});
     }
+
+    while (!q.isEmpty()) {
+        int[] cur = q.poll();
+        int x = cur[0], y = cur[1], type = cur[2], t = cur[3];
+
+        if (color[x][y] == -1) continue; // 꽃이면 스킵
+
+        for (int[] d : move) {
+            int nx = x + d[0], ny = y + d[1];
+            if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
+            if (map[nx][ny] == 0) continue; // 호수
+
+            if (color[nx][ny] == 0) {
+                color[nx][ny] = type;
+                time[nx][ny] = t + 1;
+                q.offer(new int[]{nx, ny, type, t + 1});
+            } 
+            // 다른 배양액과 만났을 때 꽃 생성
+            else if (color[nx][ny] != type && time[nx][ny] == t + 1 && color[nx][ny] != -1) {
+                flowerCount++;
+                color[nx][ny] = -1; // 꽃으로 표시
+            }
+        }
+    }
+
+    result = Math.max(result, flowerCount);
+}
+
 }
 
 // print number of flowers
