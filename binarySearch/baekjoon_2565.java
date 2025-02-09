@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.*;
-import java.lang.*;
 
 public class Main {
     public static void main(String args[]) throws Exception {
@@ -8,47 +7,56 @@ public class Main {
     }
     
     static int N;
-    static int[][] lineList;
-    
+    static int[][] lines;
+    static int maxLines;
+
     public static void solution() throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine()); // 전깃줄 개수 (N <= 100)
-        lineList = new int[N][2]; // 전깃줄 왼쪽 오른쪽 위치 (input <= 500)
+        N = Integer.parseInt(br.readLine()); // 전깃줄 개수 (≤ 100)
+        lines = new int[N][2];
         
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            lineList[i][0] = Integer.parseInt(st.nextToken());
-            lineList[i][1] = Integer.parseInt(st.nextToken());
+            lines[i][0] = Integer.parseInt(st.nextToken()); // ≤ 500
+            lines[i][1] = Integer.parseInt(st.nextToken()); // ≤ 500
         }
         
-        // 1. 전깃줄 리스트 정렬
-        Arrays.sort(lineList, Comparator.comparingInt(arr -> arr[0]));
+        Arrays.sort(lines, Comparator.comparingInt(a -> a[0]));
+        LIS_Optimized();
         
-        // 2. 증가하는 최대한 긴 수 길이 도출
-        System.out.println(N - lis());
+        System.out.println(N - maxLines);
     }
     
-    // 2. 증가하는 최대한 긴 수 길이 도출
-    static int lis() {
-        List<Integer> lisList = new ArrayList<>();
+    static void LIS_Optimized() {
+        int[] lis = new int[N]; // LIS 배열 (최대 크기 N)
+        int length = 0; // 현재 LIS 길이
         
         for (int i = 0; i < N; i++) {
-            int value = lineList[i][1];
+            int num = lines[i][1]; // 현재 전깃줄의 B 좌표
             
-            if (lisList.isEmpty() || lisList.get(lisList.size() - 1) < value) {
-                // LIS 마지막 값보다 크면 추가
-                lisList.add(value);
-            } else {
-                // 이진 탐색으로 적절한 위치 찾아 값 교체
-                int idx = Collections.binarySearch(lisList, value);
-                if (idx < 0) idx = -idx - 1; // 삽입 위치 변환
-                lisList.set(idx, value);
-            }
+            // 이분 탐색으로 LIS 위치 찾기
+            int idx = lowerBound(lis, length, num);
+            
+            // LIS 업데이트
+            lis[idx] = num;
+            if (idx == length) length++; // 새로운 원소 추가 시 길이 증가
         }
         
-        return lisList.size();
+        maxLines = length;
+    }
+    
+    // lowerBound: lis 배열에서 num이 들어갈 위치 찾기
+    static int lowerBound(int[] arr, int len, int key) {
+        int left = 0, right = len;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (arr[mid] < key) left = mid + 1;
+            else right = mid;
+        }
+        return left;
     }
 }
+
 
 // 교차하지 않게 없애야하는 전깃줄 최소 개수
 
