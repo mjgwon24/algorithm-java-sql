@@ -1,76 +1,91 @@
-import java.io.*;
 import java.util.*;
 import java.lang.*;
+import java.io.*;
 
-public class Main {
-    public static void main(String args[]) throws Exception {
-        new Main().solution();
-    }
-    
+class Main {
     static int N;
     static int[] heights;
-    statinc long result = Long.MAX_VALUE;
-    
-    public static void solution() throws Exception {
+    static long result = Long.MAX_VALUE;
+    static int[] selectedFirst = new int[2];
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(st.nextToken()); // 눈덩이 개수 (4 ≤ N ≤ 600)
-        heights = new int[N]; // 각 눈덩이 지름 (1 ≤ H ≤ 10^9)
+        N = Integer.parseInt(br.readLine()); // 눈덩이 개수 (4 <= * <= 600)
+        heights = new int[N];
         
         StringTokenizer st = new StringTokenizer(br.readLine());
         for (int i = 0; i < N; i++) {
-            heights[i] = Integer.parseInt(st.nextToken());
+            heights[i] = Integer.parseInt(st.nextToken()); // 각 눈덩이 지름 (<= 10^9) ...int 초과 위험
         }
         
-        // [시간복잡도] 정렬 -> O(NlogN) (무시가능)
+        // 1. 정렬
         Arrays.sort(heights);
-        
-        // two pointer
-        // [시간복잡도] 두 개의 눈덩이를 모두 선택하는 모든 조합 -> O(N^2)
-        for (int i = 0; i < N - 1; i++) {
-            for (int j = i + 1; j < N; j++) {
-                // 첫 번째 눈사람
-                int sum1 = heights[i] + heights[j];
-                
-                // 두 번째 눈사람
-                int left = 0;
-                int right = N - 1;
-                
-                // [시간복잡도] 각 조합에 대해 포인터를 움직이며 탐색 -> O(N)
-                while (left < right) {
-                    // 현재 비교 중인 눈덩이와 겹치는 경우 건너뛰기
-                    if (left == i || left == j) {
-                        left++;
-                        continue;
-                    }
-                    
-                    if (right == i || right == j) {
-                        right++;
-                        continue;
-                    }
-                    
-                    int sum2 = heights[left] + heights[right];
-                    result = Math.min(result, Math.abs(sum1 - sum2));
-                    
-                    // 최적화
-                    if (result == 0) {
-                        System.out.println(result);
-                        return;
-                    }
-                    
-                    // 더 작은 차이 탐색을 위해 포인터 이동 (sum2의 크기만 조절 가능)
-                    if (sum1 > sum2) left++; // sum2 키우기위해 left 증가
-                    else right--; // sum2 줄이기위해 right 감소
-                }
+
+        // 2. 첫번째 눈사람 조합 생성 (중복이 일어나지 않도록 맨앞, 맨뒤부터 선택해서 안으로 들어가기)
+        // N = 4
+        // i: 0 ~ (N - 4), j: 3 ~ (N - 1)
+        for (int i = 0; i <= N - 4; i++) {
+            selectedFirst[0] = i;
+            for (int j = N - 1; j >= i + 3; j--) {
+                selectedFirst[1] = j;
+
+                long heightFirst = heights[i] + heights[j];
+
+                // 3. 두번째 눈사람 조합 생성 - 투포인터 탐색
+                twoPointSearch(i, j, heightFirst)
+                if (result == 0) break;
             }
+            if (result == 0) break;
         }
-        
-        
+
         System.out.println(result);
+    }
+
+    // 3. 두번째 눈사람 조합 생성 - 투포인터 탐색
+    static void twoPointSearch(int start, int end, long heightFirst) {
+        int left = start + 1;
+        int right = end - 1;
+        long minDiff = Long.MAX_VALUE;
+
+        while (left < right) {
+            while (left == selectedFirst[0] || left == selectedFirst[1]) {
+                left++;
+            }
+
+            while (right == selectedFirst[0] || right == selectedFirst[1]) {
+                right--;
+            }
+
+            long heightSecond = heights[left] + heights[right];
+            long newDiff = heightFirst - heightSecond;
+
+            if (newDiff == 0) {
+                result = 0;
+                return;
+            }
+
+            minDiff = Math.min(minDiff, Math.abs(newDiff));
+
+            //    diff > 0, heightFirst > heightSecond => 두번째 눈사람 키우기. left++
+            if (newDiff > 0) left++;
+        
+            //    diff < 0, heightFirst < heightSecond => 두번째 눈사람 줄이기. right--
+            if (newDiff < 0) right--;
+        }
+
+        result = Math.min(result, minDiff);
     }
 }
 
-// 눈사람 키 차이 중 최솟값 도출
-// 서로 다른 4개의 눈덩이로 두 눈사람 만들기
+// heights = {2 3 5 5 9}
+// 1. 정렬
+// 2. 첫번째 눈사람 조합 생성 (중복이 일어나지 않도록 맨앞, 맨뒤부터 선택해서 안으로 들어가기)
+// 3. 두번째 눈사람 조합 생성 - 투포인터 탐색
+//    left = 0; right = 1
+//    diff = heightFirst - heightSecond
+//    diff > 0, heightFirst > heightSecond => 두번째 눈사람 줄이기. right--
+//    diff < 0, heightFirst < heightSecond => 두번째 눈사람 키우기. left++
+//    diff == 0, return
 
-// 최종 시간 복잡도: O(N^3) = (6 * 10^2)^3 = 6^3 * 10^6 (안전)
-// 1초: 10^8회 연산
+
+
