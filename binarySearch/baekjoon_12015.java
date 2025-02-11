@@ -2,6 +2,15 @@ import java.io.*;
 import java.util.*;
 import java.lang.*;
 
+/**
+가장 긴 증가하는 부분 수열 2
+
+List -> int[]
+Collections 메서드 사용이 아닌 직접 이진탐색 인덱스 위치 탐색 메서드 구현
+
+최종 실행 시간: 492ms
+최종 메모리: 96108KB
+**/
 public class Main {
     public static void main(String args[]) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
