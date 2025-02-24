@@ -22,7 +22,6 @@ WITH rentalList AS (
 )
 
 # SELECT * FROM rentalList;
-
 # SELECT CAR_ID, COUNT(CAR_ID) FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY GROUP BY CAR_ID ORDER BY CAR_ID;
 
 -- rentalList와 조인해서 교집합일시 "대여중", 교집합이 아닐시 "대여 가능"
