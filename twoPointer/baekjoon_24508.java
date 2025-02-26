@@ -14,18 +14,24 @@ public class Main {
         st = new StringTokenizer(br.readLine());
 
         int notZeroCount = 0; // 나도리가 존재하는 바구니 개수
+        int notBombCount = 0; // 터지지 않은 바구니 개수
         for (int i = 0; i < N; i++) {
             A[i] = Integer.parseInt(st.nextToken());
-            if (A[i] != 0) notZeroCount++;
+            if (A[i] != 0 && A[i] != K) {
+                notZeroCount++;
+                notBombCount++;
+            } else if (A[i] == K) {
+                notZeroCount++;
+            }
         }
 
         // 모든 바구니가 비어 있다면 즉시 YES
-        if (notZeroCount == 0) {
+        if (notBombCount == 0) {
             System.out.println("YES");
             return;
         }
 
-        // 한 개의 바구니만 남은 경우 터트릴 수 없음
+        // 0, K 나도리가 아닌 다른 나도리의 바구니가 한 개만 남은 경우 터트릴 수 없음
         if (notZeroCount == 1) {
             System.out.println("NO");
             return;
