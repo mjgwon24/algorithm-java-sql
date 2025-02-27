@@ -8,8 +8,8 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
 
         // 블록의 가로의 길이와 세로의 길이
-        int TD = Integer.parseInt(st.nextToken());
-        int RL = Integer.parseInt(st.nextToken());
+        int W = Integer.parseInt(st.nextToken());
+        int H = Integer.parseInt(st.nextToken());
 
         // 상점 개수
         int N = Integer.parseInt(br.readLine());
@@ -31,12 +31,14 @@ public class Main {
         int x = Integer.parseInt(st.nextToken()); // 내 위치 방향
         int y = Integer.parseInt(st.nextToken()); // 내 위치 거리
 
-        int dist1 = move(x, y, TD, RL);
+        int dist1 = move(x, y, W, H);
 
         for (int i = 0; i < N; i++) {
-            int dist2 = move(s[i][0], s[i][1], TD, RL);
+            int dist2 = move(s[i][0], s[i][1], W, H);
+            
+            // 두 위치 사이의 거리(시계방향, 반시계방향 중 최소값)
             int distance1 = Math.abs(dist1 - dist2);
-            int distance2 = 2 * (TD + RL) - distance1;
+            int distance2 = 2 * (W + H) - distance1;
 
             result += Math.min(distance1, distance2);
         }
@@ -44,15 +46,16 @@ public class Main {
         System.out.println(result);
     }
 
-    public static int move(int dir, int dist, int TD, int RL) {
+    // 좌표 1차원 거리 값으로 변환
+    public static int move(int dir, int dist, int W, int H) {
         if (dir == 1) {
             return dist;
         } else if (dir == 2) {
-            return TD + RL + (TD - dist);
+            return W + H + (W - dist);
         } else if (dir == 3) {
-            return 2 * TD + RL + (RL - dist);
+            return 2 * W + H + (H - dist);
         } else {
-            return dist + TD;
+            return dist + W;
         }
     }
 }
