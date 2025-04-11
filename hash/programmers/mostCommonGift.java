@@ -2,177 +2,110 @@ import java.lang.*;
 import java.util.*;
 
 class Solution {
-    static Map<String, Integer> giftScores = new HashMap<>(); // 선물 지수 맵
-    // static Map<String, Map<String, Integer>> history = new HashMap<>(); // 선물 주고받은 기록 - 준사람, (받은 사람, 횟수)
-    // static Map<String, List<String>> history = new HashMap<>(); // 선물 주고받은 기록 - 준사람, (받은 사람1, 받은사람2, ...)
-    static Map<String, List<String>> history = new HashMap<>(); // 선물 주고받은 기록 - 준사람, (받은 사람1, 받은사람2, ...)
-    static Map<String, Integer> nextGifts = new HashMap<>(); // 사람별 다음달 받을 선물의 개수
+    static HashMap<String, List<String>> historySet = new HashMap<>();
+    static HashMap<String, Integer> giftScoreSet = new HashMap<>();
+    static HashMap<String, Integer> nextGiftSet = new HashMap<>();
     
     public int solution(String[] friends, String[] gifts) {
-        // 맵 초기화
+        // 0. historySet, giftScoreSet 초기화
         for (String friend: friends) {
-            giftScores.put(friend, 0);
-            history.put(friend, new ArrayList<>());
+            historySet.put(friend, new ArrayList<>());
+            giftScoreSet.put(friend, 0);
         }
         
-        // 1. gifts 배열 기반으로 선물 주고받은 현황 초기화 - 선물지수, 선물 주고받은 기록
+        // 1. gifts 배열을 순회하며 historySet, giftScoreSet 초기화
         for (String gift: gifts) {
             String[] giftArr = gift.split(" ");
-            String A = giftArr[0]; // 준 사람
-            String B = giftArr[1]; // 받은 사람
+            String sender = giftArr[0];
+            String receiver = giftArr[1];
             
-            giftScores.put(A, giftScores.get(A) + 1);
-            giftScores.put(B, giftScores.get(B) - 1);
-            
-            history.get(A).add(B);
+            historySet.get(sender).add(receiver);
+            giftScoreSet.put(sender, giftScoreSet.get(sender) + 1);
+            giftScoreSet.put(receiver, giftScoreSet.get(receiver) - 1);
         }
         
-        // System.out.println("선물지수 현황");
-        // for (String s: friends) {
-        //     System.out.printf("%s 점수: %d\n", s, giftScores.get(s));
-        // }
-        
-        // 2. 친구들 중 2명의 사람을 선택 (순서 신경쓰지 않음)
-        // 이중포문이라 순서가 반영된건가
+        // 2. friends 배열을 순회하며 nextGiftSet 갱신
         for (int i = 0; i < friends.length; i++) {
             for (int j = i + 1; j < friends.length; j++) {
-                String f1 = friends[i];
-                String f2 = friends[j];
-                // System.out.printf("현재 선택된 사람: %s, %s\n", f1, f2);
+                String frd1 = friends[i];
+                String frd2 = friends[j];
+                int frd1Score = giftScoreSet.get(frd1);
+                int frd2Score = giftScoreSet.get(frd2);
                 
-                if (f1.equals(f2)) continue;
-                int s1 = giftScores.get(f1);
-                int s2 = giftScores.get(f2);
-                
-                // 두 사람이 선물을 주고받은 기록 X
-                if (!history.get(f1).contains(f2) && !history.get(f2).contains(f1)) {
-                    if (s1 > s2) {
-                        // s1이 s2에게 선물 받음
-                        nextGifts.put(f1, nextGifts.getOrDefault(f1, 0) + 1);
-                    } else if (s1 < s2) {
-                        // s2가 s1에게 선물 받음
-                        nextGifts.put(f2, nextGifts.getOrDefault(f2, 0) + 1);
-                    } 
+                // 두 사람이 선물을 주고받은 기록이 있다면,
+                if (historySet.get(frd1).contains(frd2) || historySet.get(frd2).contains(frd1)) {
+                    // 이번 달까지 "두 사람 사이"에 더 많은 선물을 준 사람이 다음 달에 선물을 하나 받습니다.
+                    int frd1Point = 0; // 친구1이 친구2에게 준 선물 개수
+                    int frd2Point = 0; // 친구2가 친구1에게 준 선물 개수
                     
-                    // System.out.println("선물받은 기록 없음. 선물지수로 비교.");
+                    // historySet을 순회하며 서로에게 준 선물 개수 갱신
+                    for (String receiver: historySet.get(frd1)) {
+                        if (receiver.equals(frd2)) frd1Point++;
+                    }
+                    
+                    for (String receiver: historySet.get(frd2)) {
+                        if (receiver.equals(frd1)) frd2Point++;
+                    }
+                    
+                    if (frd1Point > frd2Point) nextGiftSet.put(frd1, nextGiftSet.getOrDefault(frd1, 0) + 1);
+                    else if (frd1Point < frd2Point) nextGiftSet.put(frd2, nextGiftSet.getOrDefault(frd2, 0) + 1);
+                    else {
+                        // 주고받은 수가 같다면,
+                        // 선물 지수가 더 큰 사람이 선물 지수가 더 작은 사람에게 선물을 하나 받습니다.
+                        if (frd1Score > frd2Score) nextGiftSet.put(frd1, nextGiftSet.getOrDefault(frd1, 0) + 1);
+                        else if (frd1Score < frd2Score) nextGiftSet.put(frd2, nextGiftSet.getOrDefault(frd2, 0) + 1);
+                    }
                 } else {
-                    // 두 사람이 선물을 주고받은 기록 O -> 이번 달까지 "두 사람 사이"에 더 많은 선물을 준 사람이 다음 달에 선물을 하나 받음
-                    // 선물지수가 높은사람이 아님. history 개수 기반으로 비교해야한다. 두 사람 사이!!!!
-                    // f1(준사람) List<String>을 꺼냄 -> 해당 String에서 f2가 몇개있는지 계산해서 반환
-                    int p1 = 0;
-                    int p2 = 0;
-                    
-                    for (String s: history.get(f1)) {
-                        if (s.equals(f2)) p1++;
-                    }
-                    
-                    for (String s: history.get(f2)) {
-                        if (s.equals(f1)) p2++;
-                    }
-                    
-                    // System.out.println("선물받은 기록 있음");
-                    // System.out.printf("%s가 %s에게 %d개의 선물을 줌\n",f1, f2, p1);
-                    // System.out.printf("%s가 %s에게 %d개의 선물을 줌\n",f2, f1, p2);
-                    
-                    if (p1 > p2) {
-                        nextGifts.put(f1, nextGifts.getOrDefault(f1, 0) + 1);
-                    } else if (p1 < p2) {
-                        nextGifts.put(f2, nextGifts.getOrDefault(f2, 0) + 1);
-                    } else {
-                        if (s1 > s2) nextGifts.put(f1, nextGifts.getOrDefault(f1, 0) + 1);
-                        else if (s1 < s2) nextGifts.put(f2, nextGifts.getOrDefault(f2, 0) + 1);
-                    }
+                    // 두 사람이 선물을 주고받은 기록이 하나도 없다면
+                    // 선물 지수가 더 큰 사람이 선물 지수가 더 작은 사람에게 선물을 하나 받습니다.
+                    if (frd1Score > frd2Score) nextGiftSet.put(frd1, nextGiftSet.getOrDefault(frd1, 0) + 1);
+                    else if (frd1Score < frd2Score) nextGiftSet.put(frd2, nextGiftSet.getOrDefault(frd2, 0) + 1);
                 }
-                // for (String f: friends) {
-                //     System.out.println(f);
-                //     System.out.println(nextGifts.getOrDefault(f, 0));
-                // }
-                // System.out.println();
             }
         }
-        
-// "muzi", "ryan" O -> ryan = 1
-// "muzi", "frodo" O -> muzi = 1
-// "muzi", "neo" O -> neo = 1
-        
-// "ryan", "frodo" O -> frodo = 1
-        
-// "ryan", "neo" X -> ryan = 2
-// "frodo", "neo" X -> neo = 1
-        
-        // 다음달에 가장 많은 선물을 받는 친구가 받을 선물의 수
-        int answer = 0;
-        for (String f: friends) {
-            // System.out.println(f);
-            // System.out.println(nextGifts.getOrDefault(f, 0));
-            answer = Math.max(answer, nextGifts.getOrDefault(f, 0));
-            // System.out.println();
+                
+        // 3. nextGiftSet을 순회하며 다음달에 가장 많은 선물을 받은 친구가 받을 선물 수 return
+        int maxValue = 0;
+        for (String friend: friends) {
+            int cnt = nextGiftSet.getOrDefault(friend, 0);
+            if (maxValue < cnt) maxValue = cnt;
         }
-        return answer;
+        
+        // 다음달에 가장 많은 선물을 받은 친구가 받을 선물 수 return
+        return maxValue;
     }
 }
 
 /***
-[ 요구사항 ]
-다음달에 가장 많은 선물을 받는 친구가 받을 선물의 수 return
+String[] friends 친구 이름
+String[] gifts 선물 기록
 
-[ 조건 ]
-친구들이 이번 달까지 선물을 주고받은 기록을 바탕으로 다음 달에 누가 선물을 많이 받을지 예측
-선물지수: 이번 달까지 자신이 친구들에게 준 선물의 수 - 받은 선물의 수
+friends
+["muzi", "ryan", "frodo", "neo"]	
+gifts	
+["muzi frodo", "muzi frodo", "ryan muzi", "ryan muzi", "ryan muzi", "frodo muzi", "frodo ryan", "neo muzi"]	
 
-• 두 사람이 선물을 주고받은 기록 O
-    • 이번 달까지 두 사람 사이에 더 많은 선물을 준 사람이 다음 달에 선물을 하나 받음
-    
-• 두 사람이 선물을 주고받은 기록 X or 주고받은 수가 같다면
-    • 선물 지수가 더 큰 사람(선물을 많이 준 사람)이 
-      선물 지수가 더 작은 사람에게 선물을 하나 받음
-    => 만약 두 사람의 선물 지수도 같다면 다음 달에 선물을 주고받지 않음
-    
-[ 입력 ]
-• String[] friends: 친구들의 이름을 담은 1차원 문자열 배열 
-    (알파벳 소문자로 이루어진 길이가 10 이하인 문자열)
-• String[] gifts: 이번 달까지 친구들이 주고받은 선물 기록을 담은 1차원 문자열 배열
-    "A B": 선물을 준 친구의 이름, 선물을 받은 친구의 이름
+• 선물 지수: + 이번 달까지 자신이 친구들에게 준 선물의 수, - 받은 선물의 수
 
-[ 도출 과정 ]
-friends = ["muzi", "ryan", "frodo", "neo"]	
-gifts	= [
-"muzi frodo",  // muzi -> frodo, 선물지수 muzi++, frodo--
-"muzi frodo",  // muzi -> frodo, 선물지수 muzi++, frodo--
-"ryan muzi",   // 선물지수 ryan++, muzi--
-"ryan muzi",    // 선물지수 ryan++, muzi--
-"ryan muzi",    // 선물지수 ryan++, muzi--
-"frodo muzi",    // 선물지수 frodo++, muzi--
-"frodo ryan",    // 선물지수 frodo++, ryan--
-"neo muzi"       // 선물지수 neo++, muzi--
-]	
+// • 두 사람이 선물을 주고받은 기록이 있다면,
+//     • 이번 달까지 "두 사람 사이"에 더 많은 선물을 준 사람이 다음 달에 선물을 하나 받습니다.
+// • 두 사람이 선물을 주고받은 기록이 하나도 없거나 주고받은 수가 같다면,
+//     • 선물 지수가 더 큰 사람이 선물 지수가 더 작은 사람에게 선물을 하나 받습니다.
+//     • 만약 두 사람의 선물 지수도 같다면 다음 달에 선물을 주고받지 않습니다.
 
-사람별 선물지수 Map<String, Integer>
-선물 주고받은 기록 Map<String, String??? 준사람 받은사람 횟수
-사람별 다음달 받을 선물의 개수 history
-muzi, (frodo, frodo) 2
-ryan, (muzi, muzi, muzi) 3
+* Set: 단일 자료형으로 구성된 중복되지 않는 자료형
+* Map: 키-값 쌍으로 구성된 키가 중복되지 않는 자료형 (값은 중복 가능)
 
-"muzi", "ryan" O -> ryan = 1
-"muzi", "frodo" O -> muzi = 1
-"muzi", "neo" O -> neo = 1
-"ryan", "frodo" O -> frodo = 1
-"ryan", "neo" X -> ryan = 2
-"frodo", "neo" X -> neo = 1
+[ 필요 변수 ]
+• HashMap<String, List<String>> 선물을 주고받은 전체 기록 (선물을 준 사람, (선물을 받은 사람1, 2, ...))
+    • historySet
+• HashMap<String, Integer> 선물 지수 (이름, 선물지수)
+    • giftScoreSet
+• HashMap<String, Integer> 다음 달에 받을 선물 수 (이름, 선물 개수)
+    • nextGiftSet
 
-["joy", "brad", "alessandro", "conan", "david"]
-["alessandro brad", "alessandro joy", "alessandro conan", "david alessandro", "alessandro david"]
-alessandro brad 
-alessandro joy
-alessandro conan
-david alessandro
-alessandro david
+1. gifts 배열을 순회하며 historySet, giftScoreSet 초기화
+2. friends 배열을 순회하며 nextGiftSet 갱신
+3. nextGiftSet을 순회하며 다음달에 가장 많은 선물을 받은 친구가 받을 선물 수 return
 
-
-1. gifts 배열 기반으로 선물 주고받은 현황 초기화 - 선물지수, 선물 주고받은 기록
-2. 친구들 중 2명의 사람을 선택 (순서 신경쓰지 않음)
-3. 선택된 2명의 친구간 선물 주고받은 기록을 기반으로 누가 다음달에 선물을 받을지 또는 아무도 받지 않을지 계산
-4. 다음달에 가장 많은 선물을 받는 친구가 받을 선물의 수 도출
-
-result = 2
 ***/
