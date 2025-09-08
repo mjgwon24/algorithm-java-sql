@@ -1,0 +1,13 @@
+WITH CATEGORY_MAX_PRICE AS (
+    select CATEGORY, MAX(PRICE) AS MAX_PRICE
+    from food_product
+    where CATEGORY IN ('과자', '국', '김치', '식용유')
+    group by CATEGORY
+)
+
+SELECT FP.CATEGORY, MAX_PRICE, PRODUCT_NAME
+from food_product AS FP
+INNER JOIN CATEGORY_MAX_PRICE AS CM
+    ON FP.CATEGORY = CM.CATEGORY
+    AND FP.PRICE = CM.MAX_PRICE
+order by MAX_PRICE DESC
