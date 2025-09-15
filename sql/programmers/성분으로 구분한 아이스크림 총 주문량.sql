@@ -1,0 +1,13 @@
+SELECT INGREDIENT_TYPE, SUM(TOTAL_ORDER) AS TOTAL_ORDER
+FROM ICECREAM_INFO AS ii
+INNER JOIN FIRST_HALF AS fh
+    ON ii.FLAVOR = fh.FLAVOR
+GROUP BY ii.INGREDIENT_TYPE
+ORDER BY TOTAL_ORDER ASC
+
+/*
+상반기 동안
+select 아이스크림 성분 타입, 아이스크림 총주문량 as TOTAL_ORDER
+group by 아이스크림 성분 타입
+order by 총주문량 오름차순
+*/
