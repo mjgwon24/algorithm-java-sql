@@ -5,7 +5,6 @@ import java.io.*;
 class Main {
     static int N;
     static List<Integer>[] childrens;
-    static List<Integer>[] parents;
     static int[] dp;
     
     public static void main(String[] args) throws Exception {
@@ -18,12 +17,6 @@ class Main {
         for (int i = 0; i < N; i++) {
             childrens[i] = new ArrayList<>();
         }
-
-        parents = new ArrayList[N];
-        for (int i = 0; i < N; i++) {
-            parents[i] = new ArrayList<>();
-        }
-        
         
         StringTokenizer st = new StringTokenizer(br.readLine());
         for (int i = 0; i < N; i++) {
@@ -32,7 +25,6 @@ class Main {
             if (v == -1) continue;
             
             childrens[v].add(i);
-            parents[i].add(v);
         }
         
         // 모든 소식을 전하는데 걸리는 최솟값 출력
